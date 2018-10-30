@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 
 /**
@@ -46,12 +47,11 @@ public class PreFilter extends ZuulFilter {
     @Override
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
-        String token = ctx.getRequest().getHeader(HttpHeaders.AUTHORIZATION);
-
-        String labels = TOKEN_LABEL_MAP.get(token);
-
-        logger.info("label: " + labels);
-
+        HttpServletRequest request = ctx.getRequest();
+        System.out.println("send " + request.getMethod() + " request to " + request.getRequestURI().toString());
+        System.out.println("**zuul添加路由规则**");
+        String labels = "{\"second-consumer\":\"v3\",\"consumer\":\"v1\",\"provider\":\"v2\"}";
+        // 全部为POST请求，json格式,GBK
         CoreHeaderInterceptor.initHystrixRequestContext(labels); // zuul本身调用微服务
         ctx.addZuulRequestHeader(CoreHeaderInterceptor.HEADER_LABEL, labels); // 传递给后续微服务
 
